@@ -1,7 +1,7 @@
 import tkinter
 
 class Role:
-    def __init__(self, imageName, name=None, x=0, y=0, level=1):
+    def __init__(self, name, imageName, level, x=0, y=0):
         self.canvas = None
         self.image = tkinter.PhotoImage(file='resources/roles/' + imageName + '.gif')
         self.name = name
@@ -14,10 +14,3 @@ class Role:
 
     def transferEnd(self, callback):
         callback()
-
-    def upgrade(self, space):
-        slef.level += space  
-
-    def move(dx, dy):
-        self.x += dx
-        self.y += dy

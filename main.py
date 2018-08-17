@@ -1,18 +1,20 @@
 import tkinter
+import configparser
 from app import Application
 
-fps = 25
-width = 0
-height = 0
+# init config
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 def main():
     root = tkinter.Tk()
     root.title('人生如遊戲')
-    root.resizable(width=False, height=False)
 
-    width = root.winfo_screenwidth() - 10
-    height = root.winfo_screenheight() - 123
-    application = Application(root, width, height, fps)
+    # check does the window need fixed size
+    if config['window']['fixed_size'] == 'yes':
+        root.resizable(width=False, height=False)
+
+    application = Application(root)
 
 if __name__ == '__main__':
     main()
