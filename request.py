@@ -1,7 +1,10 @@
 import requests
 import json
+import configparser
 
-ENDPOINT_URL = "http://127.0.0.1/graphql"
+config = configparser.ConfigParser()
+config.read('config.ini')
+ENDPOINT_URL = "http://" + config['database']['url'] + "/graphql"
 
 def request(query, variables='{}'):
     response = requests.post(ENDPOINT_URL, json={'query': query, 'variables': variables})

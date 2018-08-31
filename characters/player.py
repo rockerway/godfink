@@ -1,25 +1,20 @@
-from characters import role
+from characters.character import Character
+from entities.characterInfo import CharacterInfo
 
-class Player(role.Role):
-    def __init__(self, imageName, name=None, x=0, y=0, level='1'):
-        super().__init__(name, imageName, level, x=x, y=y)
+class Player(Character):
+    def __init__(self, name=None, x=0, y=0, level='1'):
+        characterInfo = CharacterInfo()
+        characterInfo.name = name
+        characterInfo.role = 'player'
+        characterInfo.imageName = 'player'
+        characterInfo.level = level
+        characterInfo.x = x
+        characterInfo.y = y
+        super().__init__(characterInfo)
 
     def transfer(self, canvas):
-        canvas.delete(self.canvas)
+        for obj in self.canvases:
+            canvas.delete(obj)
 
     def levelUP(self, space):
         slef.level += space
-
-    def move(self, dx, dy, width, height):
-        moveX = True
-        moveY = True
-        self.x += dx
-        self.y += dy
-        if self.x > width or self.x < 0:
-            self.x -= dx
-            moveX = False
-        if self.y > height or self.y < 0:
-            self.y -= dy
-            moveY = False
-
-        return (moveX, moveY)

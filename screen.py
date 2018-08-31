@@ -1,5 +1,4 @@
 import tkinter
-from characters import role
 from enum import Enum
  
 class ScreenID(Enum):

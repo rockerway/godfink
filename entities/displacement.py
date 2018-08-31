@@ -1,0 +1,3 @@
+class Displacement:
+    dx = 0
+    dy = 0

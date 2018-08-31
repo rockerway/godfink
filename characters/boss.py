@@ -1,5 +1,11 @@
-from characters import role
+from characters.character import Character
 
-class Boss(role.Role):
-    def __init__(self, imageName, name, x=0, y=0):
-        super().__init__(name, imageName, "???", x=x, y=y)
+class Boss(Character):
+    def __init__(self, character):
+        super().__init__(
+            character['name'],
+            character['imageName'],
+            character['level'],
+            character['x'],
+            character['y']
+        )
