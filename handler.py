@@ -1,6 +1,9 @@
 import configparser
 from request import *
-import screen as s
+from screen import ScreenID
+from screen import Screen
+from characters.character import Character
+from mapObjects.mapObjects import MapObjects
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -11,30 +14,53 @@ def login(name):
         player = createPlayer(name)
     return player
 
-def levelUP(player, space):
+def levelUP(player, space, screenID):
     player.levelUP(space)
-    playerInfo = updateCharacter(player)
+    playerInfo = updateCharacter(player, screenID)
     return playerInfo
 
 def transferScreen(character, screenID, x, y):
-    character.screenID = screenID
     character.x = x
     character.y = y
-    characterInfo = updateCharacter(character)
+    characterInfo = updateCharacter(character, screenID)
     return characterInfo
 
 def getScreen(screenID):
-    return readScreen(screenID.value)
+    screen = readScreen(screenID.value)
+    return Screen(
+        screen.name, 
+        screen.backgroundName, 
+        normalizeCharacters(screen.characters), 
+        normalizeMapObjects(screen.mapObjects))
 
 def getCharacters(screenID):
     # get all characters information that include name, role, imageName, level
-    characters = readCharacters()
+    characterInfos = readCharacters()
+    characters = normalizeCharacters(characterInfos)
+
     # Climu not in meeting room
-    if screenID == s.ScreenID.MEETING_ROOM:
+    if screenID == ScreenID.MEETING_ROOM:
         del characters[2]
+
     # set character position that be got from config file
     for character in characters:
-        character['x'] = config['screen' + screenID.value][character['name'].lower() + '_x']
-        character['y'] = config['screen' + screenID.value][character['name'].lower() + '_y']
+        character.x = int(config['screen' + screenID.value][character.name.lower() + '_x'])
+        character.y = int(config['screen' + screenID.value][character.name.lower() + '_y'])
     
     return characters
+    
+def normalizeCharacters(characterInfos):
+    characters = []
+
+    for characterInfo in characterInfos:
+        characters.append(Character(characterInfo))
+    
+    return characters
+
+def normalizeMapObjects(mapObjectInfos):
+    mapObjects = MapObjects()
+
+    for mapObjectInfo in mapObjectInfos:
+        mapObjects.add(mapObjectInfo)
+
+    return mapObjects

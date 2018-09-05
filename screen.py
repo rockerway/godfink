@@ -10,8 +10,8 @@ class ScreenID(Enum):
     WORK_ROOM_2 = '6'
 
 class Screen:
-    def __init__(self, name, backgroundName, characters, items):
+    def __init__(self, name, backgroundName, characters, mapObjects):
         self.name = name
         self.background = tkinter.PhotoImage(file='resources/backgrounds/' + backgroundName + '.gif')
         self.characters = characters
-        self.items = items
+        self.mapObjects = mapObjects

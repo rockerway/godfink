@@ -13,6 +13,11 @@ class Character:
         self.y = characterInfo.y
         self.displacement = Displacement()
 
+    def getDisplacement(self):
+        displacement = self.displacement
+        self.displacement = Displacement()
+        return displacement
+
     def transfer(self, canvas):
         for canvas in self.canvases:
             canvas.delete(self.canvas)
@@ -21,13 +26,12 @@ class Character:
         callback()
 
     def move(self, displacement, width, height):
-        self.displacement.dx += displacement.dx
-        self.displacement.dy += displacement.dy
-        self.x += dx
-        self.y += dy
-        if self.x > width or self.x < 0:
-            self.x -= dx
-            self.displacement.dx -= displacement.dx
-        if self.y > height or self.y < 0:
-            self.y -= dy
-            self.displacement.dy -= displacement.dy
+        nextX = self.x + displacement.dx
+        nextY = self.y + displacement.dy
+
+        if 0 < nextX and nextX < width:
+            self.displacement.dx += displacement.dx
+            self.x = nextX
+        if 0 < nextY and nextY < height:
+            self.displacement.dy += displacement.dy
+            self.y = nextY

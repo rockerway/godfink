@@ -1,4 +1,6 @@
 import tkinter
+from entities.imageInfo import ImageInfo
+from entities.textInfo import TextInfo
 
 class Canvas(tkinter.Canvas):
     def __init__(self, master, width, height):
@@ -11,50 +13,64 @@ class Canvas(tkinter.Canvas):
         self.create_image(int(self.width/2), int(self.height/2), image=image)
 
     def drawCharacter(self, character):
-        character.canvases.append(self.create_image(
-            character.x, 
-            character.y, 
-            image=character.image
-        ))
-        self.create_text(
-            character.x, 
-            character.y + 60, 
-            fill = "white", 
-            font = "Times 20 italic bold", 
-            text = character.name
-        )
-        self.create_text(
+        imageInfo = ImageInfo(
             character.x,
-            character.y - 60,
-            fill = "white",
-            font = "Times 20 italic bold",
-            text = "LV. " + character.level
+            character.y,
+            character.image
         )
+        character.canvases.append(self.drawImage(imageInfo))
 
-    def drawImage(self, imageObject):
-        image = self.create_image(
-            imageObject.x,
-            imageObject.y,
-            image = imageObject.image
+        if character.name:
+            nameInfo = TextInfo(
+                character.x,
+                character.y + 60,
+                "%s - %s" %(character.role, character.name)
+            )
+            levelInfo = TextInfo(
+                character.x,
+                character.y - 60,
+                "LV. %s" %character.level
+            )
+
+            character.canvases.append(self.drawText(nameInfo))
+            character.canvases.append(self.drawText(levelInfo))
+
+    def drawImage(self, imageInfo):
+        return self.create_image(
+            imageInfo.x,
+            imageInfo.y,
+            image = imageInfo.image
         )
-        imageObject.canvas = image
     
-    def drawText(self, textObject):
-        text = self.create_text(
-            textObject.x,
-            textObject.y,
+    def drawText(self, textInfo):
+        return self.create_text(
+            textInfo.x,
+            textInfo.y,
             fill = "white", 
             font = "Times 20 italic bold", 
-            text = textObject.text
+            text = textInfo.text
         )
-        textObject.canvas = text
 
-    def drawItem(self, item):
-        item.canvas = self.create_image(
-            item.x,
-            item.y,
-            image=item.image
-        )
+    def drawListbox(self, listboxObject):
+        listbox = tkinter.Listbox(self, width=listboxObject.width, height=listboxObject.height)
+        return self.create_window(
+            int(self.width * listboxObject.xRatio),
+            int(self.height * listboxObject.yRatio),
+            window=listbox)
+
+    def drawInput(self, textObject):
+        text = tkinter.Text(self, width=textObject.width, height=textObject.height)
+        return self.create_window(
+            int(self.width * textObject.xRatio), 
+            int(self.height * textObject.yRatio), 
+            window=text)
+
+    def drawButton(self, buttonObject):
+        button = tkinter.Button(self, text=buttonObject.text, command=buttonObject.command)
+        return self.create_window(
+            int(self.width * buttonObject.xRatio), 
+            int(self.height * buttonObject.yRatio), 
+            window=button)
 
     def reset(self):
         self.delete("all")

@@ -4,6 +4,10 @@ from canvas import Canvas
 from characters.character import Character
 from characters.player import Player
 from entities.characterInfo import CharacterInfo
+from entities.displacement import Displacement
+from entities.textInfo import TextInfo
+from entities.imageInfo import ImageInfo
+from mapObjects.mapObjectType import MapObjectType
 from screen import *
 from handler import getScreen
 from handler import getCharacters
@@ -37,8 +41,9 @@ class Application(tkinter.Frame):
             x = int(self.width/2), 
             y = int(self.height*2/3)
         )
+
         self.loadScreen() # init the screen
-        self.drawScreen() # draw screen background, characters, items on canvas
+        self.drawScreen() # draw screen background, characters, mapObjects on canvas
 
     # load screen information by self.currentScreenID.
     # screen Start, MeetingRoom, WorkRoom1, WorkRoom2 have characters information
@@ -46,70 +51,71 @@ class Application(tkinter.Frame):
     # screen Start, MeetingRoom need inject characters information
     def loadScreen(self):
         # get current screen (only work_room_1 and work_room_2 can get characters)
-        screen = getScreen(self.currentScreenID)
+        self.screen = getScreen(self.currentScreenID)
+        
         # get characters information in screen start and screen meeting room
         if self.currentScreenID == ScreenID.START or self.currentScreenID == ScreenID.MEETING_ROOM:
-            screen['characters'] = getCharacters(self.currentScreenID)
-        # normalize characters information
-        characters = [self.player]
-        for character in screen['characters']:
-            characterInfo = CharacterInfo()
-            characterInfo.name = character['name']
-            characterInfo.role = character['role']
-            characterInfo.imageName = character['imageName']
-            characterInfo.level = character['level']
-            characterInfo.x = int(character['x'])
-            characterInfo.y = int(character['y'])
-            characters.append(Character(characterInfo))
-        # normalize characters formation
-        items = []
-        for item in screen['items']:
-            pass
-        
-        self.screen = Screen(
-            screen['name'], 
-            screen['backgroundName'], 
-            characters, 
-            items
-        )
+            self.screen.characters = getCharacters(self.currentScreenID)
+        self.screen.characters.append(self.player)
 
     def drawScreen(self):
         self.canvas.reset()
         self.canvas.setBackground(self.screen.background)
+        self.canvas.drawText(TextInfo(
+            0,
+            0,
+            self.screen.name))
+    
         for character in self.screen.characters:
             self.canvas.drawCharacter(character)
+        for item in self.screen.mapObjects.items:
+            self.canvas.drawImage(ImageInfo(
+                int(self.width * item.xRatio),
+                int(self.height * item.yRatio),
+                item.image))
+        for button in self.screen.mapObjects.buttons:
+            self.canvas.drawButton(button)
+        for listbox in self.screen.mapObjects.listboxes:
+            self.canvas.drawListbox(listbox)
+        for text in self.screen.mapObjects.texts:
+            self.canvas.drawInput(text)
 
     # game logic
     def run(self):
-        self.after(int(1000/self.fps), self.run)
+        displacement = self.player.getDisplacement()
+        for canvas in self.player.canvases:
+            self.canvas.move(
+                canvas,
+                displacement.dx,
+                displacement.dy
+            )
+        self.after(int(1000 / self.fps), self.run)
 
-    # keyboard handler
+    def showChatBlock(self):
+        if not self.canControl:
+            return
+
+    # keyboard handler (want to use some pattern to optimize)
     def key(self, event):
         # print("pressed", repr(event.char))
         if not self.canControl:
             return
 
+        displacement = Displacement()
         key = event.char
-        dx = 0
-        dy = 0
         if key == 'w':
-            dy = -moveSpeed
+            displacement.dy = -moveSpeed
         elif key == 's':
-            dy = moveSpeed
+            displacement.dy = moveSpeed
         elif key == 'a':
-            dx = -moveSpeed
+            displacement.dx = -moveSpeed
         elif key == 'd':
-            dx = moveSpeed
+            displacement.dx = moveSpeed
         elif key == 'b':
             self.player.transfer(self.canvas)
         # update player position and feedback update state
-        moveX, moveY = self.player.move(dx, dy, self.width, self.height)
-        if not moveX:
-            dx = 0
-        if not moveY:
-            dy = 0
-        #move player
-        self.canvas.move(self.player.canvas, dx, dy)
+        self.player.move(displacement, self.width, self.height)
+        
         # '\r'      entry
         # ' '       space
         # '\x1b'    esc
