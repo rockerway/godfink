@@ -5,6 +5,7 @@ from entities.buttonInfo import ButtonInfo
 from entities.inputInfo import InputInfo
 from handler import login
 
+
 class StartPageUI:
     def __init__(self):
         self.textUseEntry = False

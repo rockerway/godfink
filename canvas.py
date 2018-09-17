@@ -15,12 +15,18 @@ class Canvas(tkinter.Canvas):
         self.create_image(int(self.width/2), int(self.height/2), image=image)
 
     def drawCharacter(self, character):
-        imageInfo = ImageInfo(
+        character.effect = self.drawImage(ImageInfo(
+            character.x,
+            character.y,
+            character.effectImage
+        ))
+        character.canvases.append(character.effect)
+        self.itemconfig(character.effect, state=tkinter.HIDDEN)
+        character.canvases.append(self.drawImage(ImageInfo(
             character.x,
             character.y,
             character.image
-        )
-        character.canvases.append(self.drawImage(imageInfo))
+        )))
 
         if character.name:
             nameInfo = TextInfo(

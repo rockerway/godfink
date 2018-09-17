@@ -13,7 +13,8 @@ class ChatUI:
         self.root = root
         self.chatType = tkinter.IntVar(value=RadioType.CHAT.value)
         self.output = Text(InputInfo(0, 0.1, 50, 17, withScrollBar=True))
-        self.input = Text(InputInfo(0, 0.6, 50, 12, withScrollBar=True))
+        self.input = Text(
+            InputInfo(0, 0.6, 50, 12, callback=self.key, withScrollBar=True))
         self.exitButton = Button(ButtonInfo(0.1, 0.95, "Close", self.hide))
         self.sendButton = Button(ButtonInfo(0.3, 0.95, "Send", self.send))
         self.radios = [
@@ -22,6 +23,11 @@ class ChatUI:
             Radio(RadioInfo(0.3, 0.05, "Python",
                             self.chatType, RadioType.PYTHON.value))
         ]
+
+    def key(self, event):
+        key = event.char
+        if key == '\x1b':
+            self.hide()
 
     def hide(self):
         self.output.hide()

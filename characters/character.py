@@ -13,6 +13,8 @@ class Character(Actable):
     def __init__(self, characterInfo):
         self.canvases = []
         self.effect = None
+        self.effectImage = tkinter.PhotoImage(
+            file='resources/effects/breath.gif')
         self.id = characterInfo.id
         self.name = characterInfo.name
         self.role = characterInfo.role

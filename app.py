@@ -87,6 +87,7 @@ class Application(tkinter.Frame):
                 int(self.height * mapObject.yRatio),
                 mapObject.image))
         self.canvas.drawCharacter(self.player)
+        self.drawChatBlock()
 
     # game logic
     def run(self):
@@ -104,7 +105,6 @@ class Application(tkinter.Frame):
             self.canControl = True
             self.startPageUI.player = None
             self.focus_set()
-            self.drawChatBlock()
 
         displacement = self.player.getDisplacement()
         for canvas in self.player.canvases:
@@ -113,6 +113,15 @@ class Application(tkinter.Frame):
                 displacement.dx,
                 displacement.dy
             )
+
+        for character in self.screen.characters:
+            if character.role != 'boss':
+                continue
+            if self.getDistance(character.x, character.y) < 100:
+                self.canvas.itemconfig(character.effect, state=tkinter.NORMAL)
+            else:
+                self.canvas.itemconfig(character.effect, state=tkinter.HIDDEN)
+
         self.after(int(1000 / self.fps), self.run)
 
     # keyboard handler (want to use some pattern to optimize)
