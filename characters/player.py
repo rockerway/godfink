@@ -1,15 +1,17 @@
 from characters.character import Character
 from entities.characterInfo import CharacterInfo
 
+
 class Player(Character):
-    def __init__(self, name=None, x=0, y=0, level='1'):
+    def __init__(self, name=None, xRatio=0, yRatio=0, level='1', id=None):
         characterInfo = CharacterInfo({
+            'id': id,
             'name': name,
             'role': 'player',
             'imageName': 'player',
             'level': level,
-            'x': x,
-            'y': y
+            'xRatio': xRatio,
+            'yRatio': yRatio
         })
         super().__init__(characterInfo)
 

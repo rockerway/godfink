@@ -1,8 +1,12 @@
 from tkinter import PhotoImage
 from mapObjects.mapObject import MapObject
-from mapObjects.mapObjectType import MapObjectType
+
 
 class Item(MapObject):
-    def __init(self, item):
-        self.image = PhotoImage(file='resources/roles/' + item['imageName'] + '.gif')
-        super.__init__(MapObjectType.ITEM, item['xRatio'], item['yRatio'])
+    def __init__(self, item):
+        self.image = PhotoImage(
+            file='resources/mapObjects/' + item.imageName + '.gif')
+        self.targetScreenID = item.targetScreenID
+        self.name = item.name
+        self.action = item.action
+        super().__init__(item.xRatio, item.yRatio)

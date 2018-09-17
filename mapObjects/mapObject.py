@@ -1,7 +1,8 @@
-class MapObject:
-    def __init__(self, mapObjectType, xRatio, yRatio):
+from actions.actable import Actable
+
+
+class MapObject(Actable):
+    def __init__(self, xRatio, yRatio):
         self.canvas = None
-        self.type = mapObjectType
         self.xRatio = xRatio
         self.yRatio = yRatio
-        

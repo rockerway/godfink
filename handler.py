@@ -3,10 +3,13 @@ from request import *
 from screen import ScreenID
 from screen import Screen
 from characters.character import Character
-from mapObjects.mapObjects import MapObjects
+from mapObjects.item import Item
 
 config = configparser.ConfigParser()
 config.read('config.ini')
+width = int(config['window']['width'])
+height = int(config['window']['height'])
+
 
 def login(name):
     player = readPlayer(name)
@@ -14,24 +17,25 @@ def login(name):
         player = createPlayer(name)
     return player
 
+
 def levelUP(player, space, screenID):
     player.levelUP(space)
-    playerInfo = updateCharacter(player, screenID)
+    playerInfo = updateCharacter(player, screenID.value)
     return playerInfo
 
-def transferScreen(character, screenID, x, y):
-    character.x = x
-    character.y = y
-    characterInfo = updateCharacter(character, screenID)
-    return characterInfo
+
+def characterTransferScreen(character, screenID):
+    characterInfo = updateCharacter(character, screenID.value)
+
 
 def getScreen(screenID):
     screen = readScreen(screenID.value)
     return Screen(
-        screen.name, 
-        screen.backgroundName, 
-        normalizeCharacters(screen.characters), 
+        screen.name,
+        screen.backgroundName,
+        normalizeCharacters(screen.characters),
         normalizeMapObjects(screen.mapObjects))
+
 
 def getCharacters(screenID):
     # get all characters information that include name, role, imageName, level
@@ -44,23 +48,27 @@ def getCharacters(screenID):
 
     # set character position that be got from config file
     for character in characters:
-        character.x = int(config['screen' + screenID.value][character.name.lower() + '_x'])
-        character.y = int(config['screen' + screenID.value][character.name.lower() + '_y'])
-    
+        character.x = float(config['screen' + screenID.value]
+                            [character.name.lower() + '_xRatio']) * width
+        character.y = float(config['screen' + screenID.value]
+                            [character.name.lower() + '_yRatio']) * height
+
     return characters
-    
+
+
 def normalizeCharacters(characterInfos):
     characters = []
 
     for characterInfo in characterInfos:
         characters.append(Character(characterInfo))
-    
+
     return characters
 
+
 def normalizeMapObjects(mapObjectInfos):
-    mapObjects = MapObjects()
+    mapObjects = []
 
     for mapObjectInfo in mapObjectInfos:
-        mapObjects.add(mapObjectInfo)
+        mapObjects.append(Item(mapObjectInfo))
 
     return mapObjects

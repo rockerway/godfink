@@ -6,33 +6,40 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 ENDPOINT_URL = "http://" + config['database']['url'] + "/graphql"
+width = int(config['window']['width'])
+height = int(config['window']['height'])
+
 
 def request(query, variables='{}'):
-    response = requests.post(ENDPOINT_URL, json={'query': query, 'variables': variables})
+    response = requests.post(
+        ENDPOINT_URL, json={'query': query, 'variables': variables})
     # return json.loads(response.text)
     return json.loads(
         response.text,
         object_hook=lambda d: namedtuple('Obj', d.keys())(*d.values())
     )
 
+
 def readPlayer(name):
     query = """query GetPlayer($name: String!) {
       player(name: $name) {
         id
+        name
         role
         screenID
         imageName
         level
-        x
-        y
+        xRatio
+        yRatio
       }
     }"""
     variables = {'name': name}
     result = request(query, variables)
-    if len(result.data) == 0:
+    if len(result.data.player) == 0:
         return None
     else:
         return result.data.player[0]
+
 
 def createPlayer(name):
     query = """mutation CreateCharacter($input: CreateCharacterInput!) {
@@ -43,35 +50,36 @@ def createPlayer(name):
         role
         imageName
         level
-        x
-        y
+        xRatio
+        yRatio
       }
     }"""
     variables = {
         'input': {
-            'screenID': 2,
+            'screenID': '2',
             'name': name,
             'role': 'player',
             'imageName': 'player',
             'level': '1',
-            'x': 0,
-            'y': 0
+            'xRatio': 0.5,
+            'yRatio': 0.5
         }
     }
     result = request(query, variables)
-    return result.data.character
+    return result.data.createCharacter
+
 
 def updateCharacter(character, screenID):
     query = """mutation UpdateCharacter($input: UpdateCharacterInput!) {
       updateCharacter(input: $input) {
-        id: ID
+        id
         screenID
         name
         role
         imageName
         level
-        x
-        y
+        xRatio
+        yRatio
       }
     }"""
     variables = {
@@ -82,12 +90,13 @@ def updateCharacter(character, screenID):
             'role': character.role,
             'imageName': character.imageName,
             'level': character.level,
-            'x': character.x,
-            'y': character.y
+            'xRatio': character.x / width,
+            'yRatio': character.y / height
         }
     }
     result = request(query, variables)
-    return result.data.character
+    return result.data.updateCharacter
+
 
 def readScreen(screenID):
     query = """query GetScene($id: ID!) {
@@ -95,27 +104,23 @@ def readScreen(screenID):
         name
         backgroundName
         characters {
+          id
           name
           role
           imageName
           level
-          x
-          y
+          xRatio
+          yRatio
         }
         mapObjects {
           id
           screenID
-          type
+          imageName
+          name
+          action
+          targetScreenID
           xRatio
           yRatio
-          ... on Button {
-            text
-            callback
-          }
-          ... on Text {
-            width
-            height
-          }
         }
       }
     }"""
@@ -125,15 +130,17 @@ def readScreen(screenID):
     result = request(query, variables)
     return result.data.screen
 
+
 def readCharacters():
     query = """{
       characters {
+        id
         name
         role
         imageName
         level
-        x
-        y
+        xRatio
+        yRatio
       }
     }"""
     result = request(query)

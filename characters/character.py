@@ -1,16 +1,27 @@
 import tkinter
+import configparser
 from entities.displacement import Displacement
+from actions.actable import Actable
 
-class Character:
+config = configparser.ConfigParser()
+config.read('config.ini')
+width = int(config['window']['width'])
+height = int(config['window']['height'])
+
+
+class Character(Actable):
     def __init__(self, characterInfo):
         self.canvases = []
         self.effect = None
+        self.id = characterInfo.id
         self.name = characterInfo.name
         self.role = characterInfo.role
-        self.image = tkinter.PhotoImage(file='resources/roles/' + characterInfo.imageName + '.gif')
+        self.imageName = characterInfo.imageName
+        self.image = tkinter.PhotoImage(
+            file='resources/roles/' + characterInfo.imageName + '.gif')
         self.level = characterInfo.level
-        self.x = characterInfo.x
-        self.y = characterInfo.y
+        self.x = characterInfo.xRatio * width
+        self.y = characterInfo.yRatio * height
         self.displacement = Displacement()
 
     def getDisplacement(self):
