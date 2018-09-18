@@ -20,4 +20,4 @@ class Player(Character):
             canvas.delete(obj)
 
     def levelUP(self, space):
-        slef.level += space
+        self.level = str(int(self.level) + space)

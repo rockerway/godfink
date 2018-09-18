@@ -1,0 +1,3 @@
+#!/bin/sh
+
+go run input.go > output 2> error

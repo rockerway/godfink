@@ -1,0 +1,3 @@
+#!/bin/sh
+
+python3 input.py > output 2> error

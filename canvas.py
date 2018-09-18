@@ -122,3 +122,6 @@ class Canvas(tkinter.Canvas):
 
     def reset(self):
         self.delete("all")
+
+    def deleteWeight(self, weight):
+        self.delete(weight)

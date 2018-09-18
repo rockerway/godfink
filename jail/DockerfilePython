@@ -1,0 +1,9 @@
+FROM alpine
+
+RUN apk upgrade
+RUN apk update
+RUN apk add python3
+RUN apk add py3-pip
+WORKDIR /root
+
+CMD ["sh", "python.run"]

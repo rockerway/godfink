@@ -14,6 +14,7 @@ from ui.chat import ChatUI
 from handler import getScreen
 from handler import getCharacters
 from handler import characterTransferScreen
+from handler import levelUP
 
 # init config
 config = configparser.ConfigParser()
@@ -47,6 +48,7 @@ class Application(tkinter.Frame):
     def startPage(self):
         self.actions['changeScreen'] = self.changeScreen
         self.actions['dream'] = self.dream
+        self.actions['communicate'] = self.communicate
         self.player = Player(
             xRatio=0.5,
             yRatio=2/3
@@ -91,20 +93,34 @@ class Application(tkinter.Frame):
 
     # game logic
     def run(self):
+        # login and success get player information from DB
         if self.startPageUI.player:
+            # initial player
             self.player = Player(
                 self.startPageUI.player.name,
                 self.startPageUI.player.xRatio,
                 self.startPageUI.player.yRatio,
                 self.startPageUI.player.level,
                 self.startPageUI.player.id)
+            # set current screen ID that player in
             self.currentScreenID = ScreenID.getScreenID(
                 self.startPageUI.player.screenID)
+            self.startPageUI.player = None
+
             self.loadScreen()
             self.drawScreen()
             self.canControl = True
-            self.startPageUI.player = None
             self.focus_set()
+
+        if self.chatUI.codeResult != "":
+            context = self.chatUI.codeResult
+            self.chatUI.codeResult = ""
+            levelUP(self.player, int(math.ceil(len(context) / 20)),
+                    self.currentScreenID)
+            for canvas in self.player.canvases:
+                self.canvas.deleteWeight(canvas)
+            self.player.canvases = []
+            self.canvas.drawCharacter(self.player)
 
         displacement = self.player.getDisplacement()
         for canvas in self.player.canvases:
@@ -145,8 +161,8 @@ class Application(tkinter.Frame):
             self.actions[obj.action](obj)
         elif key == 'm':
             self.meeting()
-        elif key == 'b':
-            self.player.transfer(self.canvas)
+        # elif key == 'b':
+        #     self.player.transfer(self.canvas)
         elif key == '\r':
             self.showChatUI()
         # update player position
@@ -252,4 +268,8 @@ class Application(tkinter.Frame):
         characterTransferScreen(self.player, self.currentScreenID)
 
     def dream(self, mapObject):
+        self.chatUI.canExit = False
+        self.showChatUI()
+
+    def communicate(self, character):
         pass

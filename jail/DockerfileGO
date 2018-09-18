@@ -1,0 +1,6 @@
+FROM alpine
+
+RUN apk add --update go musl-dev git
+WORKDIR /usr/share/apps
+
+CMD ["sh", "go.run"]
