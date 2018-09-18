@@ -4,6 +4,7 @@ from screen import ScreenID
 from screen import Screen
 from characters.character import Character
 from mapObjects.item import Item
+from actions.event import Event
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -60,9 +61,16 @@ def normalizeCharacters(characterInfos):
     characters = []
 
     for characterInfo in characterInfos:
-        characters.append(Character(characterInfo))
+        character = Character(characterInfo)
+        normalizeEvents(character.events, characterInfo.events)
+        characters.append(character)
 
     return characters
+
+
+def normalizeEvents(characterEvents, eventInfos):
+    for eventInfo in eventInfos:
+        characterEvents.append(Event(eventInfo))
 
 
 def normalizeMapObjects(mapObjectInfos):

@@ -24,6 +24,9 @@ class Character(Actable):
         self.level = characterInfo.level
         self.x = characterInfo.xRatio * width
         self.y = characterInfo.yRatio * height
+        self.events = []
+        self.action = characterInfo.action
+        self.mantra = characterInfo.mantra
         self.displacement = Displacement()
 
     def getDisplacement(self):

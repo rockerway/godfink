@@ -7,3 +7,6 @@ class CharacterInfo:
         self.level = character['level']
         self.xRatio = character['xRatio']
         self.yRatio = character['yRatio']
+        self.events = []
+        self.action = ''
+        self.mantra = ''

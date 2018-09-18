@@ -62,7 +62,9 @@ def createPlayer(name):
             'imageName': 'player',
             'level': '1',
             'xRatio': 0.5,
-            'yRatio': 0.5
+            'yRatio': 0.5,
+            'action': '',
+            'mantra': ''
         }
     }
     result = request(query, variables)
@@ -80,6 +82,16 @@ def updateCharacter(character, screenID):
         level
         xRatio
         yRatio
+        events {
+          levelLimit
+          keyword
+          info
+          validate
+          validateSeparator
+          lv
+        }
+        action
+        mantra
       }
     }"""
     variables = {
@@ -91,7 +103,9 @@ def updateCharacter(character, screenID):
             'imageName': character.imageName,
             'level': character.level,
             'xRatio': character.x / width,
-            'yRatio': character.y / height
+            'yRatio': character.y / height,
+            'action': character.action,
+            'mantra': character.mantra
         }
     }
     result = request(query, variables)
@@ -111,6 +125,16 @@ def readScreen(screenID):
           level
           xRatio
           yRatio
+          events {
+            levelLimit
+            keyword
+            info
+            validate
+            validateSeparator
+            lv
+          }
+          action
+          mantra
         }
         mapObjects {
           id
@@ -141,6 +165,16 @@ def readCharacters():
         level
         xRatio
         yRatio
+        events {
+          levelLimit
+          keyword
+          info
+          validate
+          validateSeparator
+          lv
+        }
+        action
+        mantra
       }
     }"""
     result = request(query)

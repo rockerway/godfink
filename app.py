@@ -112,15 +112,16 @@ class Application(tkinter.Frame):
             self.canControl = True
             self.focus_set()
 
-        if self.chatUI.codeResult != "":
-            context = self.chatUI.codeResult
-            self.chatUI.codeResult = ""
-            levelUP(self.player, int(math.ceil(len(context) / 20)),
-                    self.currentScreenID)
+        if self.chatUI.codeResult != "" or self.chatUI.getLevel != 0:
+            level = int(math.ceil(len(self.chatUI.codeResult) / 20)
+                        ) + self.chatUI.getLevel
+            levelUP(self.player, level, self.currentScreenID)
             for canvas in self.player.canvases:
                 self.canvas.deleteWeight(canvas)
             self.player.canvases = []
             self.canvas.drawCharacter(self.player)
+            self.chatUI.codeResult = ""
+            self.chatUI.getLevel = 0
 
         displacement = self.player.getDisplacement()
         for canvas in self.player.canvases:
@@ -158,13 +159,14 @@ class Application(tkinter.Frame):
             displacement.dx = moveSpeed
         elif key == 'e':
             obj = self.getClosestObject()
-            self.actions[obj.action](obj)
+            if obj:
+                self.actions[obj.action](obj)
         elif key == 'm':
             self.meeting()
         # elif key == 'b':
         #     self.player.transfer(self.canvas)
         elif key == '\r':
-            self.showChatUI()
+            self.chatUI.show()
         # update player position
         self.player.move(displacement, self.width, self.height)
 
@@ -192,9 +194,6 @@ class Application(tkinter.Frame):
         for radio in self.chatUI.radios:
             self.canvas.drawRadio(radio)
         self.chatUI.hide()
-
-    def showChatUI(self):
-        self.chatUI.show()
 
     def getClosestObject(self):
         closestObject = None
@@ -226,7 +225,10 @@ class Application(tkinter.Frame):
             self.beforeScreenID = self.currentScreenID
             self.currentScreenID = targetScreenID
         else:
-            self.currentScreenID = self.beforeScreenID
+            if self.beforeScreenID:
+                self.currentScreenID = self.beforeScreenID
+            else:
+                self.currentScreenID = ScreenID.MAP
         self.loadScreen()
         self.setPlayerPosition()
         self.drawScreen()
@@ -269,7 +271,7 @@ class Application(tkinter.Frame):
 
     def dream(self, mapObject):
         self.chatUI.canExit = False
-        self.showChatUI()
+        self.chatUI.show()
 
     def communicate(self, character):
-        pass
+        self.chatUI.show(character)

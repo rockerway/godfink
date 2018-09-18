@@ -15,6 +15,7 @@ class ChatUI:
     def __init__(self, root):
         self.root = root
         self.canExit = True
+        self.targetCharacter = None
         self.chatType = tkinter.IntVar(value=RadioType.CHAT.value)
         self.output = Text(InputInfo(0, 0.1, 50, 17, withScrollBar=True))
         self.input = Text(
@@ -28,6 +29,7 @@ class ChatUI:
                             self.chatType, RadioType.PYTHON.value))
         ]
         self.codeResult = ""
+        self.getLevel = 0
 
     def key(self, event):
         key = event.char
@@ -43,9 +45,11 @@ class ChatUI:
         self.sendButton.hide()
         for radio in self.radios:
             radio.hide()
+        self.targetCharacter = None
         self.root.focus_set()
 
-    def show(self):
+    def show(self, character=None):
+        self.targetCharacter = character
         self.output.show()
         self.input.show()
         self.exitButton.show()
@@ -60,8 +64,8 @@ class ChatUI:
 
         if chatType == RadioType.CHAT.value:
             self.input.canvas.delete(0.0, message.__len__() - 1.0)
-            message = 'Me: %s' % message.replace('\n', '\n        ')[:-8]
-            self.writeMessage(message)
+            self.writeMessage('Me :\t%s' % message.replace('\n', '\n\t')[:-1])
+            self.triggerEvent(message)
         if chatType == RadioType.GO.value:
             self.runCode('input.go', message)
         if chatType == RadioType.PYTHON.value:
@@ -92,3 +96,45 @@ class ChatUI:
             self.writeMessage("---------- ERROR -----------\n")
             self.writeMessage(error)
             self.writeMessage("------------------------------\n")
+
+    def triggerEvent(self, message):
+        if not self.targetCharacter:
+            return
+
+        isEeventTriggered = False
+        for event in self.targetCharacter.events:
+            if self.isAnswer(message, event.validate, event.validateSeparator):
+                self.getLevel = event.lv
+                message = '%s :\t%s' % (
+                    self.targetCharacter.name,
+                    'Yes ~ U\'re right\n')
+                self.writeMessage(message)
+                isEeventTriggered = True
+                break
+
+            if self.isMatch(message, event.keyword):
+                message = '%s :\t%s' % (
+                    self.targetCharacter.name,
+                    event.info + '\n')
+                self.writeMessage(message)
+                if event.validate == "":
+                    self.getLevel = event.lv
+                isEeventTriggered = True
+                break
+        if not isEeventTriggered:
+            self.writeMessage(
+                '%s :\t%s' % (
+                    self.targetCharacter.name,
+                    self.targetCharacter.mantra + '\n'))
+
+    def isMatch(self, problem, keyword):
+        for word in problem.split(' '):
+            if word.replace('\n', '') == keyword:
+                return True
+
+        return False
+
+    def isAnswer(self, answer, expectAnswer, validateSeparator):
+        if expectAnswer == "":
+            return False
+        return answer.split(validateSeparator, 1)[0] == expectAnswer
