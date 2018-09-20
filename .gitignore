@@ -104,8 +104,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-resources/roles/
-resources/shots/
-resources/mapObjects/
+*.gif
 .vscode/
 .ash_history
