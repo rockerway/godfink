@@ -2,5 +2,10 @@ FROM alpine
 
 RUN apk add --update go musl-dev git
 WORKDIR /usr/share/apps
+RUN go get github.com/lestrrat/go-jwx/jwa && \
+    go get github.com/lestrrat/go-jwx/jwk && \
+    go get github.com/lestrrat/go-jwx/jwt && \
+    go get github.com/pkg/errors && \
+    go get github.com/satori/go.uuid
 
 CMD ["sh", "go.run"]

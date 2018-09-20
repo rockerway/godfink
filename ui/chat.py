@@ -21,6 +21,7 @@ class ChatUI:
         self.input = Text(
             InputInfo(0, 0.6, 50, 12, callback=self.key, withScrollBar=True))
         self.exitButton = Button(ButtonInfo(0.1, 0.95, "Close", self.hide))
+        self.clearButton = Button(ButtonInfo(0.2, 0.95, "Clear", self.clear))
         self.sendButton = Button(ButtonInfo(0.3, 0.95, "Send", self.send))
         self.radios = [
             Radio(RadioInfo(0.1, 0.05, "Chat", self.chatType, RadioType.CHAT.value)),
@@ -30,6 +31,7 @@ class ChatUI:
         ]
         self.codeResult = ""
         self.getLevel = 0
+        self.help = False
 
     def key(self, event):
         key = event.char
@@ -42,25 +44,40 @@ class ChatUI:
         self.output.hide()
         self.input.hide()
         self.exitButton.hide()
+        self.clearButton.hide()
         self.sendButton.hide()
         for radio in self.radios:
             radio.hide()
         self.targetCharacter = None
         self.root.focus_set()
 
-    def show(self, character=None):
+    def show(self, character=None, level=None):
         self.targetCharacter = character
+        self.playerLevel = level
         self.output.show()
         self.input.show()
         self.exitButton.show()
+        self.clearButton.show()
         self.sendButton.show()
         for radio in self.radios:
             radio.show()
         self.input.canvas.focus_set()
 
+    def clear(self):
+        self.input.canvas.delete(
+            0.0,
+            self.input
+                .canvas
+                .get('1.0', tkinter.END)
+                .__len__() - 1.0
+        )
+
     def send(self):
         chatType = self.chatType.get()
         message = self.input.canvas.get('1.0', tkinter.END)
+        if message == 'help\n':
+            self.help = True
+            return
 
         if chatType == RadioType.CHAT.value:
             self.input.canvas.delete(0.0, message.__len__() - 1.0)
@@ -98,16 +115,19 @@ class ChatUI:
             self.writeMessage("------------------------------\n")
 
     def triggerEvent(self, message):
-        if not self.targetCharacter:
+        if not (self.targetCharacter and self.playerLevel):
             return
 
         isEeventTriggered = False
         for event in self.targetCharacter.events:
+            if self.playerLevel < event.levelLimit:
+                continue
+
             if self.isAnswer(message, event.validate, event.validateSeparator):
                 self.getLevel = event.lv
-                message = '%s :\t%s' % (
+                message = '%s :\t%s\n' % (
                     self.targetCharacter.name,
-                    'Yes ~ U\'re right\n')
+                    'Yes ~ U\'re right')
                 self.writeMessage(message)
                 isEeventTriggered = True
                 break
